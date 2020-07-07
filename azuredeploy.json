@@ -1,4 +1,4 @@
-{ //Telco Edge Node Deployment with Redis Cache
+{ //TELco Deployment with Redis Cache
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
@@ -26,7 +26,24 @@
     {
       "type": "Microsoft.EventHub/namespaces",
       "apiVersion": "2018-01-01-preview",
-      "name": "[replace(variables('NewRGName'),'Tel', 'Tel-EvtHub')]",
+      "name": "[replace(variables('NewRGName'),'Tel', 'Tel-EvtHub1')]",
+      "location": "[resourceGroup().location]",
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard",
+        "capacity": 1
+      },
+      "properties": {
+        "zoneRedundant": false,
+        "isAutoInflateEnabled": false,
+        "maximumThroughputUnits": 0,
+        "kafkaEnabled": true
+      }
+    },
+     {
+      "type": "Microsoft.EventHub/namespaces",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[replace(variables('NewRGName'),'Tel', 'Tel-EvtHub2')]",
       "location": "[resourceGroup().location]",
       "sku": {
         "name": "Standard",
@@ -81,10 +98,26 @@
     {
       "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
       "apiVersion": "2017-04-01",
-      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub'), '/RootManageSharedAccessKey')]",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub1'), '/RootManageSharedAccessKey1')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub')))]"
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub1')))]"
+      ],
+      "properties": {
+        "rights": [
+          "Listen",
+          "Manage",
+          "Send"
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
+      "apiVersion": "2017-04-01",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub2'), '/RootManageSharedAccessKey2')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub2')))]"
       ],
       "properties": {
         "rights": [
@@ -97,10 +130,24 @@
     {
       "type": "Microsoft.EventHub/namespaces/eventhubs",
       "apiVersion": "2017-04-01",
-      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub'), '/aggregator-1')]",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub1'), '/aggregator-1')]",
       "location": "Central India",
       "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub')))]"
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub1')))]"
+      ],
+      "properties": {
+        "messageRetentionInDays": 3,
+        "partitionCount": 32,
+        "status": "Active"
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/eventhubs",
+      "apiVersion": "2017-04-01",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub2'), '/aggregator-1')]",
+      "location": "Central India",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub2')))]"
       ],
       "properties": {
         "messageRetentionInDays": 3,
@@ -111,10 +158,24 @@
     {
       "type": "Microsoft.EventHub/namespaces/networkRuleSets",
       "apiVersion": "2018-01-01-preview",
-      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub'), '/default')]",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub1'), '/default')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub')))]"
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub1')))]"
+      ],
+      "properties": {
+        "defaultAction": "Deny",
+        "virtualNetworkRules": [],
+        "ipRules": []
+      }
+    },
+    {
+      "type": "Microsoft.EventHub/namespaces/networkRuleSets",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub2'), '/default')]",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub2')))]"
       ],
       "properties": {
         "defaultAction": "Deny",
@@ -156,7 +217,7 @@
         },
         "delegations": [],
         "privateEndpointNetworkPolicies": "Enabled",
-        "privateLinkServiceNetworkPolicies": "Enabled"
+        "privaTELinkServiceNetworkPolicies": "Enabled"
       }
     },
     {
@@ -186,7 +247,7 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat(variables('NewRGName'), '-Vnet'), 'subnet1')]"
       ],
       "properties": {
-        "kubernetesVersion": "1.15.7",
+        "kubernetesVersion": "1.15.11",
         "dnsPrefix": "[concat(variables('NewRGName'), '-AKSClusterdns')]",
         "agentPoolProfiles": [
           {
@@ -200,7 +261,7 @@
             "minCount": 3,
             "maxCount": 20,
             "type": "VirtualMachineScaleSets",
-            "orchestratorVersion": "1.15.7",
+            "orchestratorVersion": "1.15.11",
             "osType": "Linux"
           }
         ],
@@ -219,7 +280,7 @@
             }
           }
         },
-        "nodeResourceGroup": "[concat('MC_TBS-RG-CI-Tel_', variables('NewRGName'), '_', resourceGroup().location )]",
+        "nodeResourceGroup": "[concat('MC_TBS-RG-CI-TEL_', variables('NewRGName'), '_', resourceGroup().location )]",
         "enableRBAC": true,
         "networkProfile": {
           "networkPlugin": "azure",
@@ -262,7 +323,7 @@
         "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat(variables('NewRGName'), '-Vnet'), 'subnet1')]",
         "maxPods": 30,
         "type": "VirtualMachineScaleSets",
-        "orchestratorVersion": "1.15.7",
+        "orchestratorVersion": "1.15.11",
         "osType": "Linux",
         "enableAutoScaling": true,
         "minCount": 3,
