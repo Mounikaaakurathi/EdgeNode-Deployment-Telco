@@ -13,6 +13,7 @@ This ARM Template creates following Azure components and its dependencies.
 5. Redis Cache
  
 Create a resource group with below command on PowerShell:
+
 PS> New-AzureRmResourceGroup -Name TBS-Tel-SI-RG-AKS-01 -Location "Region-Name"
 
 The purpose of this template is to deploy AKS cluster with all dependent resources.
