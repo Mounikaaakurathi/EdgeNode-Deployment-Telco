@@ -1,10 +1,10 @@
-# Azure Kubernetes and dependencies Deployment Template
+# ARM Template - Telco Edge Node
 
-<a href="https://azuredeploy.net/" target="_blank">
-    <img src="https://azurecomcdn.azureedge.net/mediahandler/acomblog/media/Default/blog/deploybutton.png"/>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FrohitbuddharajuTanla%2FTanla-EdgeNode-Deployment-Tel%2Fmaster%2Fdeployment.json" target="_blank">
+    <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
-This ARM Template creates following Azure components and its dependencies.
+This Template creates the following Azure components and its dependencies.
 
 1. Azure AKS Instance.
 2. Virtual network, Subnet, Network Security Group.
@@ -12,8 +12,10 @@ This ARM Template creates following Azure components and its dependencies.
 4. Log Analytics workspace
 5. Redis Cache
  
-Create a resource group with below command on PowerShell:
+Create a resource group with below command
 
-PS> New-AzureRmResourceGroup -Name TBS-Tel-SI-RG-AKS-01 -Location "Region-Name"
+PS> New-AzureRmResourceGroup -Name <Resource-Group-Name> -Location <Azure-Region>
+    
+E.g. New-AzureRmResourceGroup -Name Prod-Tel-SI-RG-AKS-XYZ-01 -Location "Central India"
 
-The purpose of this template is to deploy AKS cluster with all dependent resources.
+The purpose of this template is to deploy an AKS cluster with all of dependent resources.
