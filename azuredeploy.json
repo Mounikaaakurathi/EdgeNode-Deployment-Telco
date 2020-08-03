@@ -280,7 +280,7 @@
             }
           }
         },
-        "nodeResourceGroup": "[concat('MC_TBS-RG-CI-TEL_', variables('NewRGName'), '_', resourceGroup().location )]",
+        "nodeResourceGroup": "[concat('MC_TBS-RG-TEL_', variables('NewRGName'), '_', resourceGroup().location )]",
         "enableRBAC": true,
         "networkProfile": {
           "networkPlugin": "azure",
