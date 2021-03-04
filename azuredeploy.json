@@ -1,5 +1,5 @@
 {
-  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
     "VnetAddressPrefix": {
@@ -59,7 +59,7 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-09-01",
+      "apiVersion": "2020-05-01",
       "name": "[concat(variables('NewRGName'), '-NSG')]",
       "location": "[resourceGroup().location]",
       "properties": {
@@ -186,7 +186,7 @@
     {
       "name": "[concat(variables('NewRGName'), '-Vnet')]",
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2020-05-01",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('NewRGName'), '-NSG'))]"
@@ -204,7 +204,7 @@
     },
     {
       "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2019-09-01",
+      "apiVersion": "2020-05-01",
       "name": "[concat(variables('NewRGName'), '-vnet/subnet1')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', concat(variables('NewRGName'), '-Vnet'))]",
@@ -223,7 +223,7 @@
     {
       "type": "Microsoft.OperationalInsights/workspaces",
       "name": "[replace(variables('NewRGName'),'Tel', 'Tel-LAWKS')]",
-      "apiVersion": "2017-03-15-preview",
+      "apiVersion": "2020-10-01",
       "location": "centralindia",
       "properties": {
         "sku": {
