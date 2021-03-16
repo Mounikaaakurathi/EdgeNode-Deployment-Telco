@@ -282,7 +282,7 @@
         "vnetSubnetID": "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat(variables('NewRGName'), '-Vnet'), 'subnet1')]",
         "maxPods": 30,
         "type": "VirtualMachineScaleSets",
-        "orchestratorVersion": "1.17.16",
+        "orchestratorVersion": "1.18.14",
         "osType": "Linux",
         "enableAutoScaling": true,
         "minCount": 3,
