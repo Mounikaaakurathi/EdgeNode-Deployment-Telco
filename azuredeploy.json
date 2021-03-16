@@ -17,22 +17,6 @@
       "metadata": {
         "description": "The Service Principal Client Secret."
       }
-    },
-    "namespaceCount": {
-     "type": "int",
-     "defaultValue": 2
-     },
-    "AuthorizationRulesCount": {
-      "type": "int",
-      "defaultValue": 2
-        },
-     "eventhubCount": {
-       "type": "int",
-       "defaultValue": 2
-    },
-        "nwrulesetCount": {
-            "type": "int",
-            "defaultValue": 2
     }
   },
   "variables": {
@@ -42,7 +26,7 @@
     {
       "type": "Microsoft.EventHub/namespaces",
          "apiVersion": "2018-01-01-preview",
-         "name": "[replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', 'copyIndex(1)'))]",
+         "name": "[replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', copyIndex(1)))]",
          "location": "[resourceGroup().location]",
             "sku": {
                  "name": "Standard",
@@ -57,9 +41,11 @@
              "kafkaEnabled": true
       },
             "copy": {
-                "name": "namespace",
-                "count": "[parameters('namespaceCount')]"
-            }
+        "name": "namespace",
+        "count": 2,
+        "mode": "serial",
+        "batchSize": 1
+      }
       },
     
     {
@@ -103,10 +89,10 @@
     {
        "type": "Microsoft.EventHub/namespaces/AuthorizationRules",
       "apiVersion": "2017-04-01",
-      "name": "[concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', 'copyIndex(1)')), '/RootManageSharedAccessKey')]",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', copyIndex(1))), '/RootManageSharedAccessKey')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', 'copyIndex(1)'))))]"
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', copyIndex(1)))))]"
       ],
       "properties": {
         "rights": [
@@ -117,17 +103,17 @@
       },
        "copy": {
                 "name": "AuthorizationRules",
-                "count": "[parameters('AuthorizationRulesCount')]"
+                "count": 2
             }
     },
     
     {
       "type": "Microsoft.EventHub/namespaces/eventhubs",
       "apiVersion": "2017-04-01",
-      "name": "[concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', 'copyIndex(1)')), '/aggregator-1')]",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', copyIndex(1))), '/aggregator-1')]",
       "location": "Central India",
       "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', 'copyIndex(1)'))))]"
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', copyIndex(1)))))]"
       ],
       "properties": {
         "messageRetentionInDays": 3,
@@ -136,31 +122,16 @@
       },
       "copy": {
         "name": "eventhubs",
-        "count": "[parameters('eventhubCount')]"
+        "count": 2
      }
     },
-
     {
       "type": "Microsoft.EventHub/namespaces/networkRuleSets",
       "apiVersion": "2018-01-01-preview",
-      "name": "[concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub-1'), '/default')]",
+      "name": "[concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', copyIndex(1))), '/default')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', 'Tel-EvtHub-1')))]"
-      ],
-      "properties": {
-        "defaultAction": "Deny",
-        "virtualNetworkRules": [],
-        "ipRules": []
-      }
-    },
-    {
-      "type": "Microsoft.EventHub/namespaces/networkRuleSets",
-      "apiVersion": "2018-01-01-preview",
-      "name": "[concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', 'copyIndex(1)')), '/default')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', 'copyIndex(1)'))))]"
+        "[resourceId('Microsoft.EventHub/namespaces', concat(replace(variables('NewRGName'),'Tel', concat('Tel-EvtHub-', copyIndex(1)))))]"
       ],
       "properties": {
         "defaultAction": "Deny",
@@ -169,10 +140,28 @@
       },
       "copy": {
                 "name": "networkRuleSets",
-                "count": "[parameters('nwrulesetCount')]"
+                "count": 2
     }
     },
-
+   {
+      "name": "[concat(variables('NewRGName'), '-Vnet')]",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-08-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', concat(variables('NewRGName'), '-NSG'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        },
+        "virtualNetworkPeerings": [],
+        "enableDdosProtection": false,
+        "enableVmProtection": false
+      }
+    },
     {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-05-01",
@@ -194,7 +183,7 @@
     {
       "type": "Microsoft.OperationalInsights/workspaces",
       "name": "[replace(variables('NewRGName'),'Tel', 'Tel-LAWKS')]",
-      "apiVersion": "2020-10-01",
+      "apiVersion": "2020-08-01",
       "location": "centralindia",
       "properties": {
         "sku": {
@@ -218,7 +207,7 @@
         "[resourceId('Microsoft.Network/virtualNetworks/subnets', concat(variables('NewRGName'), '-Vnet'), 'subnet1')]"
       ],
       "properties": {
-        "kubernetesVersion": "1.17.16",
+        "kubernetesVersion": "1.18.14",
         "dnsPrefix": "[concat(variables('NewRGName'), '-AKSClusterdns')]",
         "agentPoolProfiles": [
           {
@@ -232,7 +221,7 @@
             "minCount": 3,
             "maxCount": 20,
             "type": "VirtualMachineScaleSets",
-            "orchestratorVersion": "1.17.16",
+            "orchestratorVersion": "1.18.14",
             "osType": "Linux"
           }
         ],
