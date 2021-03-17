@@ -6,10 +6,10 @@
       "value": "172.16.0.0/22"
     },
     "servicePrincipalClientId": {
-      "value": "84583ef3-c27f-4bd-88bb-f8e79a3a456d"
+      "value": ""
     },
     "servicePrincipalClientSecret": {
-      "value": "ER.]U.HEu:2yiNoAF5BxCHJ6SOAd6j"
+      "value": ""
     }
   }
 }
